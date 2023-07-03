@@ -1,8 +1,8 @@
 import React from "react";
 import {
   Center,
-  Container,
   useColorMode,
+  useMediaQuery,
   Tooltip,
   IconButton,
   SunIcon,
@@ -11,10 +11,8 @@ import {
   HStack,
   Text,
   Heading,
-  Box,
   Link,
   VStack,
-  Button,
   AspectRatio,
   Menu,
   HamburgerIcon,
@@ -23,12 +21,10 @@ import {
 
 // Start editing here, save and see your changes.
 export default function App({ products }) {
+  const [isMobile] = useMediaQuery({ maxWidth: 768 });
+
   return (
-    <Center
-      flex={1}
-      _dark={{ bg: "gray.900" }}
-      _light={{ bg: "gray.50" }}
-    >
+    <Center flex={1} _dark={{ bg: "gray.900" }} _light={{ bg: "gray.50" }}>
       <VStack alignItems="center" space="md">
         <HStack alignItems="center" space="2xl">
           <AspectRatio w={48} ratio={5 / 3}>
@@ -38,18 +34,27 @@ export default function App({ products }) {
               resizeMode="contain"
             />
           </AspectRatio>
-          <Menu trigger={triggerProps => (
-            <Pressable {...triggerProps}>
+          <Menu
+            minWidth={isMobile ? undefined : "256px"}
+            placement={isMobile ? undefined : "left top"}
+            trigger={(triggerProps) => (
+              <Pressable {...triggerProps}>
                 <HamburgerIcon size="lg" />
               </Pressable>
-            )}>
-            <Menu.Item><Link href="/">Home</Link></Menu.Item>
-            <Menu.Item><Link href="/products">Catalog</Link></Menu.Item>
+            )}
+          >
+            <Menu.Item>
+              <Link href="/">Home</Link>
+            </Menu.Item>
+            <Menu.Item>
+              <Link href="/products">Catalog</Link>
+            </Menu.Item>
           </Menu>
         </HStack>
         <Heading size="2xl">Welcome to the Jordan Store</Heading>
         <Text>
-          Please head to the <Link href="/products">Product Catalog</Link> to browse for your favorite Jordans.
+          Please head to the <Link href="/products">Product Catalog</Link> to
+          browse for your favorite Jordans.
         </Text>
         <Link href="/products">
           <Image
@@ -87,10 +92,15 @@ function ColorModeSwitch() {
 }
 
 export async function getServerSideProps() {
-  const catalog = await import('./api/products.json');
+  const catalog = await import("./api/products.json");
   return {
     props: {
-      products: catalog.products.map(({ id, name, year, heroImage }) => ({ id, name, year, heroImage })),
-    }
-  }
+      products: catalog.products.map(({ id, name, year, heroImage }) => ({
+        id,
+        name,
+        year,
+        heroImage,
+      })),
+    },
+  };
 }

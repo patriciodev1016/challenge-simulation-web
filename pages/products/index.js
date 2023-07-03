@@ -2,6 +2,7 @@ import React from "react";
 import {
   Center,
   useColorMode,
+  useMediaQuery,
   Tooltip,
   IconButton,
   SunIcon,
@@ -10,24 +11,26 @@ import {
   HStack,
   Text,
   Heading,
-  Box,
   Link,
   VStack,
-  Button,
   AspectRatio,
   Menu,
   Pressable,
   HamburgerIcon,
+  Flex,
 } from "native-base";
 
 // Start editing here, save and see your changes.
 export default function ProductCatalog({ products }) {
+  const [isMobile] = useMediaQuery({maxWidth: 768});
+
   return (
     <Center
       flex={1}
+      justifyContent={'flex-start'}
       _dark={{ bg: "gray.900" }}
       _light={{ bg: "gray.50" }}
-    >
+      >
       <VStack alignItems="center" space="lg">
         <HStack alignItems="center" space="2xl">
           <Link href="/">
@@ -39,29 +42,83 @@ export default function ProductCatalog({ products }) {
               />
             </AspectRatio>
           </Link>
-          <Menu trigger={triggerProps => (
-            <Pressable {...triggerProps}>
+          <Menu
+            minWidth={isMobile ? undefined : "256px"}
+            placement={isMobile ? undefined : "left top"}
+            trigger={(triggerProps) => (
+              <Pressable {...triggerProps}>
                 <HamburgerIcon size="lg" />
               </Pressable>
-            )}>
-            <Menu.Item><Link href="/">Home</Link></Menu.Item>
-            <Menu.Item><Link href="/products">Catalog</Link></Menu.Item>
+            )}
+          >
+            <Menu.Item>
+              <Link href="/">Home</Link>
+            </Menu.Item>
+            <Menu.Item>
+              <Link href="/products">Catalog</Link>
+            </Menu.Item>
           </Menu>
         </HStack>
         <Heading size="2xl">Product Catalog</Heading>
-        {products.map(({ id, name, year, heroImage }) => (
-          <Link key={id} href={`/products/${id}`}>
-            <VStack alignContent="center" space={8}>
-              <Center padding="sm" _dark={{ bg: 'gray.600' }} _light={{ bg: 'gray.100' }}>
-                <Text fontSize="xl">{name} ({year})</Text>
-                <AspectRatio w={48} ratio={16 / 9}>
-                  <Image source={{ uri: heroImage }} alt={name} />
-                </AspectRatio>
-                {/* <Image source={{ uri: heroImage }} size={48} alt={name} /> */}
-              </Center>
-            </VStack>
-          </Link>
-        ))}
+        {isMobile ? (
+          products.map(({ id, name, year, heroImage, description }) => (
+            <Link key={id} href={`/products/${id}`}>
+              <VStack alignContent="center" space={8}>
+                <Center
+                  padding="sm"
+                  _dark={{ bg: "gray.600" }}
+                  _light={{ bg: "gray.100" }}
+                >
+                  <Text fontSize="xl">
+                    {name} ({year})
+                  </Text>
+                  <AspectRatio w={48} ratio={16 / 9}>
+                    <Image source={{ uri: heroImage }} alt={name} />
+                  </AspectRatio>
+                  <Text fontSize={"sm"} marginTop={"sm"} textAlign={"center"}>
+                      {description?.slice(0, 30)} ...
+                  </Text>
+                  {/* <Image source={{ uri: heroImage }} size={48} alt={name} /> */}
+                </Center>
+              </VStack>
+            </Link>
+          ))
+        ) : (
+          <Flex
+            w={"90%"}
+            maxWidth={1024}
+            justifyContent={"center"}
+            >
+          <HStack
+            flexDirection={"row"}
+            flexWrap={"wrap"}
+            justifyContent={"space-between"}
+            alignItems={"center"}
+          >
+            {products.map(({ id, name, year, heroImage, description }) => (
+              <Link m={3} key={id} href={`/products/${id}`}>
+                <VStack alignContent="center" space={8}>
+                  <Center
+                    padding="sm"
+                    _dark={{ bg: "gray.600" }}
+                    _light={{ bg: "gray.100" }}
+                  >
+                    <Text fontSize="xl">
+                      {name} ({year})
+                    </Text>
+                    <AspectRatio w={48} ratio={16 / 9}>
+                      <Image source={{ uri: heroImage }} alt={name} />
+                    </AspectRatio>
+                    <Text fontSize={"sm"} marginTop={"sm"} textAlign={"center"}>
+                      {description?.slice(0, 30)} ...
+                    </Text>
+                  </Center>
+                </VStack>
+              </Link>
+            ))}
+          </HStack>
+          </Flex>
+        )}
       </VStack>
       <ColorModeSwitch />
     </Center>
@@ -90,10 +147,18 @@ function ColorModeSwitch() {
 }
 
 export async function getServerSideProps() {
-  const catalog = await import('../api/products.json');
+  const catalog = await import("../api/products.json");
   return {
     props: {
-      products: catalog.products.map(({ id, name, year, heroImage, description }) => ({ id, name, year, heroImage, description })),
-    }
-  }
+      products: catalog.products.map(
+        ({ id, name, year, heroImage, description }) => ({
+          id,
+          name,
+          year,
+          heroImage,
+          description,
+        })
+      ),
+    },
+  };
 }
