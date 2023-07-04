@@ -2,7 +2,6 @@ import React from "react";
 import {
   Center,
   useColorMode,
-  useMediaQuery,
   Tooltip,
   IconButton,
   SunIcon,
@@ -14,15 +13,11 @@ import {
   Link,
   VStack,
   AspectRatio,
-  Menu,
-  HamburgerIcon,
-  Pressable,
 } from "native-base";
+import Header from "./_header";
 
 // Start editing here, save and see your changes.
 export default function App({ products }) {
-  const [isMobile] = useMediaQuery({ maxWidth: 768 });
-
   return (
     <Center flex={1} _dark={{ bg: "gray.900" }} _light={{ bg: "gray.50" }}>
       <VStack alignItems="center" space="md">
@@ -34,22 +29,7 @@ export default function App({ products }) {
               resizeMode="contain"
             />
           </AspectRatio>
-          <Menu
-            minWidth={isMobile ? undefined : "256px"}
-            placement={isMobile ? undefined : "left top"}
-            trigger={(triggerProps) => (
-              <Pressable {...triggerProps}>
-                <HamburgerIcon size="lg" />
-              </Pressable>
-            )}
-          >
-            <Menu.Item>
-              <Link href="/">Home</Link>
-            </Menu.Item>
-            <Menu.Item>
-              <Link href="/products">Catalog</Link>
-            </Menu.Item>
-          </Menu>
+          <Header />
         </HStack>
         <Heading size="2xl">Welcome to the Jordan Store</Heading>
         <Text>
