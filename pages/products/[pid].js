@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import {
   Center,
@@ -25,6 +25,22 @@ export default function ProductDetails(props) {
   const router = useRouter();
   const { pid } = router.query;
   const [isMobile] = useMediaQuery({ maxWidth: 768 });
+  const [product, setProduct] = useState(null);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await fetch(`/api/products/${pid}`);
+        const data = await res.json();
+
+        setProduct(data);
+      } catch (error) {
+        console.error("failed to fetch Product details data", error);
+      }
+    };
+
+    fetchProduct();
+  }, []);
 
   return (
     <Center flex={1} _dark={{ bg: "gray.900" }} _light={{ bg: "gray.50" }}>
